@@ -35,7 +35,7 @@ jobs:
             password: ${{ secrets.DOCKERHUB_TOKEN }}
         - run: |
               ./gradlew bootBuildImage
-              docker tag juergenzimmermann/kunde:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
+              docker tag juergenzimmermann/kunde:2023.1.0 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
               docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}
       
         - name: 'Einloggen in OpenShift'
