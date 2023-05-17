@@ -1,0 +1,144 @@
+' Copyright (C) 2019 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+@startuml KundeHandler
+
+skinparam classAttributeIconSize 0
+
+package jakarta.servlet.http {
+    class HttpServletRequest
+}
+
+package org.springframework {
+    package stereotype {
+        interface "@Controller" as Controller
+    }
+
+    package web.bind.annotation {
+        interface "@RequestMapping" as RequestMapping
+        interface "@PathVariable" as PathVariable
+        interface "@RequestBody" as RequestBody
+        interface "@ExceptionHandler" as ExceptionHandler
+
+        RequestBody .left[hidden].> Controller
+        ExceptionHandler .left[hidden].> Controller
+    }
+
+    package http {
+        class ResponseEntity<T>
+        class ProblemDetail
+
+        package converter {
+            class HttpMessageNotReadableException
+        }
+
+        ResponseEntity .[hidden].> ProblemDetail
+        ResponseEntity .left[hidden].> Controller
+        ProblemDetail .[hidden].> HttpMessageNotReadableException
+    }
+
+    package security.core {
+        class Authentication
+
+        ProblemDetail .right[hidden].> Authentication
+    }
+}
+
+package java.util {
+    interface Collection<T>
+    class UUID
+    class Optional<T>
+
+    Collection .[hidden].> Optional
+    Optional .[hidden].> UUID
+    HttpServletRequest .up[hidden].> UUID
+}
+
+package com.acme.kunde {
+    package service {
+        class KundeWriteService << control >> << @Service >>
+
+        class ConstraintViolationsException
+        class EmailExistsException
+        class VersionOutdatedException
+    }
+
+    package security {
+        class UsernameExistsException
+        class PasswordInvalidException
+    }
+
+    package rest #DDDDDD {
+        package patch #FFFFFF {
+            class PatchOperation <<entity>>
+        }
+
+        class KundeDTO <<entity>>
+        class CustomUserDTO <<entity>>
+        class KundeUserDTO <<entity>>
+        KundeUserDTO o--> KundeDTO
+        KundeUserDTO o--> CustomUserDTO
+        KundeDTO .[hidden].> UUID
+        KundeDTO .[hidden].> KundeWriteService
+
+        class VersionInvalidException
+
+        class KundeWriteController << boundary >> << @Controller >> << @RequestMapping >> {
+            + @PostMapping post(@RequestBody kundeUserDTO: KundeUserDTO, request: HttpServletRequest): ResponseEntity<ProblemDetail>
+            + @PutMapping put(@PathVariable id: UUID, @RequestBody kundeDTO: KundeDTO, @RequestHeader("If-Match") version: Optional<String>, request: HttpServletRequest): ResponseEntity<Void>
+            + @PatchMapping patch(@PathVariable id: UUID, @RequestBody patchOps: Collection<PatchOperation>, @RequestHeader("If-Match") version: Optional<String>, authentication: Authentication, request: HttpServletRequest): ResponseEntity<Void>
+            + @DeleteMapping deleteById(@PathVariable id: UUID)
+            + @ExceptionHandler onConstraintViolations(ex: ConstraintViolationsException, req: HttpServletRequest): ResponseEntity<ProblemDetail>
+            + @ExceptionHandler onEmailExists(ex: EmailExistsException, req: HttpServletRequest): ResponseEntity<ProblemDetail>
+            + @ExceptionHandler onVersionOutdated(ex: VersionOutdatedException, req: HttpServletRequest): ResponseEntity<ProblemDetail>
+            + @ExceptionHandler onUsernameExists(ex: UsernameExistsException, req: HttpServletRequest): ResponseEntity<ProblemDetail>
+            + @ExceptionHandler onPasswordInvalid(ex: PasswordInvalidException, req: HttpServletRequest): ResponseEntity<ProblemDetail>
+            + @ExceptionHandler onMessageNotReadable(ex: HttpMessageNotReadableException, req: HttpServletRequest): ResponseEntity<ProblemDetail>
+        }
+
+        KundeWriteController o-right-> "1" KundeWriteService : service
+        KundeWriteController ..> KundeUserDTO
+        KundeWriteController ..> KundeDTO
+        KundeWriteController .up.> UUID
+        KundeWriteController .up.> Optional
+        KundeWriteController .up.> Collection
+        KundeWriteController ..> ConstraintViolationsException
+        KundeWriteController ..> EmailExistsException
+        KundeWriteController ..> VersionOutdatedException
+        KundeWriteController ..> UsernameExistsException
+        KundeWriteController ..> PasswordInvalidException
+        KundeWriteController .up.> HttpMessageNotReadableException
+        KundeWriteController ..> VersionInvalidException
+        KundeWriteController ..> PatchOperation
+
+        KundeWriteController .up.> HttpServletRequest
+        KundeWriteController .up.> ResponseEntity
+        KundeWriteController .up.> Authentication
+        KundeWriteController .up.> ProblemDetail
+
+        KundeWriteController .up.> Controller
+        KundeWriteController .up.> RequestMapping
+        KundeWriteController .up.> PathVariable
+        KundeWriteController .up.> RequestBody
+        KundeWriteController .up.> ExceptionHandler
+
+        KundeDTO .[hidden].> UsernameExistsException
+    }
+}
+
+hide empty members
+
+footer (c) Juergen Zimmermann
+
+@enduml

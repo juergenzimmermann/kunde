@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Copyright (C) 2021 - present Juergen Zimmermann, Hochschule Karlsruhe
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<!-- https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto.logging -->
+<!-- https://logback.qos.ch/manual/configuration.html -->
+
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <property name="LOG_FILE" value="${LOG_PATH:-/tmp}/application.log" />
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+    <logger name="com.acme" level="${APPLICATION_LOGLEVEL:-INFO}" />
+    <logger name="org.apache.catalina.loader.WebappClassLoaderBase" level="${WEBAPP_CLASS_LOADER_BASE_LOGLEVEL:-INFO}" />
+    <logger name="org.springframework.boot.availability.ApplicationAvailabilityBean" level="${REQUEST_RESPONSE_LOGLEVEL:-INFO}" />
+    <logger name="org.springframework.boot.devtools.autoconfigure.ConditionEvaluationDeltaLoggingListener" level="WARN" />
+    <logger name="org.springframework.web.servlet.DispatcherServlet" level="${REQUEST_RESPONSE_LOGLEVEL:-INFO}" />
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor" level="${REQUEST_RESPONSE_MAPPING_LOGLEVEL:-INFO}" />
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="${REQUEST_RESPONSE_MAPPING_LOGLEVEL:-INFO}" />
+    <logger name="org.springframework.security.core.userdetails.User" level="ERROR" />
+    <logger name="org.springframework.security.web.server.authorization.AuthorizationWebFilter" level="${APPLICATION_LOGLEVEL:-INFO}" />
+    <!-- TODO Warning bei Spring for GraphQL, wenn Micrometer eingebunden ist -->
+    <logger name="io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor" level="ERROR" />
+
+    <!-- https://thorben-janssen.com/hibernate-logging-guide -->
+    <logger name="org.hibernate.SQL" level="${HIBERNATE_LOGLEVEL:-INFO}" />
+    <logger name="org.hibernate.orm.jdbc.bind" level="${HIBERNATE_LOGLEVEL:-INFO}" />
+    <logger name="org.hibernate.SQL_SLOW" level="INFO" />
+
+    <logger name="org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor" level="${FLYWAY_LOGLEVEL:-INFO}"/>
+
+    <logger name="io.qameta.allure.AllureLifecycle" level="FATAL" />
+    <logger name="org.junit.jupiter.engine.descriptor.TestInstanceLifecycleUtils" level="WARN" />
+    <logger name="org.springframework.boot.test.context.SpringBootTestContextBootstrapper" level="WARN" />
+    <logger name="org.springframework.test.context.support.AbstractContextLoader" level="WARN" />
+    <logger name="org.springframework.test.context.support.AnnotationConfigContextLoaderUtils" level="WARN" />
+    <logger name="org.springframework.test.context.support.DefaultTestContextBootstrapper" level="WARN" />
+</configuration>

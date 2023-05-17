@@ -1,0 +1,81 @@
+' Copyright (C) 2019 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+@startuml KundeUserModel
+
+skinparam classAttributeIconSize 0
+' skinparam monochrome true
+
+package java {
+    package util {
+        interface List<T>
+        class URL
+    }
+
+    package time {
+        class LocalDate
+
+        URL .right[hidden].> LocalDate
+    }
+}
+
+package com.acme.kunde {
+    package entity {
+        class Umsatz
+        class Adresse
+        enum GeschlechtType
+        enum FamilienstandType
+        enum InteresseType
+    }
+
+    package rest #DDDDDD {
+        class KundeDTO << entity >> {
+            readonly nachname : String
+            readonly email : String
+            readonly kategorie: Int
+            readonly hasNewsletter : Boolean
+            readonly geburtsdatum: LocalDate
+            readonly homepage: URL
+            readonly geschlecht: GeschlechtType
+            readonly familienstand: FamilienstandType
+            readonly interessen: List<InteresseType>
+        }
+
+        KundeDTO *--> "1" Umsatz : umsatz
+        KundeDTO *--> "1" Adresse : adresse
+        KundeDTO ..> GeschlechtType
+        KundeDTO ..> FamilienstandType
+        KundeDTO ..> InteresseType
+        KundeDTO ..> URL
+        KundeDTO ..> LocalDate
+        KundeDTO .right.> List
+
+        class CustomUserDTO {
+            readonly username: String
+            readonly password: String
+        }
+
+        class KundeUserDTO << entity >>
+        KundeUserDTO *--> "1" KundeDTO
+        KundeUserDTO *--> "1" CustomUserDTO
+
+        InteresseType .right[hidden].> URL
+    }
+}
+
+hide empty members
+
+footer (c) Jürgen Zimmermann
+
+@enduml

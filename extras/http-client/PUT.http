@@ -1,0 +1,183 @@
+### Einen Kunden mittels PUT aktualisieren
+PUT {{restUrl}}/00000000-0000-0000-0000-000000000030
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+< data/kunde-30-put.json
+
+> {%
+    client.test('Einen Kunden mittels PUT aktualisieren: No Content (204)', () => {
+        const status = response.status;
+        client.assert(status === 204, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PUT aktualisieren: ETag', () => {
+        const headers = response.headers;
+        client.assert(typeof headers === 'object', `headers: ${JSON.stringify(headers)}`);
+        const etag = headers.toJSON().ETag;
+        client.assert(etag !== null && etag !== undefined, `headers: ${JSON.stringify(headers)}`);
+        client.assert(etag.match(/^"\d+"$/).length > 0, `etag: ${etag}`);
+    });
+
+    client.test('Einen Kunden mittels PUT aktualisieren: leerer body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Einen Kunden mittels PUT aktualisieren und Email existiert: 422 (Unprocessable Entity)
+PUT {{restUrl}}/00000000-0000-0000-0000-000000000030
+If-Match: "1"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+< data/kunde-30-put-email-exists.json
+
+> {%
+    client.test('Einen Kunden mittels PUT aktualisieren und Email existiert: Unprocessable Entity (422)', () => {
+        const status = response.status;
+        client.assert(status === 422, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PUT aktualisieren und Email existiert: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/problem+json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen Kunden mittels PUT aktualisieren und Email existiert: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(typeof detail === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(detail === 'Die Emailadresse admin@acme.com existiert bereits', `detail: ${detail}`);
+    });
+%}
+
+### Einen Kunden mittels PUT und ungueltigen Daten aktualisieren
+PUT {{restUrl}}/00000000-0000-0000-0000-000000000030
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+< data/kunde-30-put-invalid.json
+
+> {%
+    client.test('Einen Kunden mittels PUT und ungueltigen Daten aktualisieren: Unprocessable Entity (422)', () => {
+        const status = response.status;
+        client.assert(status === 422, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PUT und ungueltigen Daten aktualisieren: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/problem+json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen Kunden mittels PUT und ungueltigen Daten aktualisieren: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(detail !== null && detail !== undefined && typeof detail === 'string' && detail.length > 2, `body: ${JSON.stringify(body)}`);
+        // noinspection JSObjectNullOrUndefined
+        const detailArr = detail.slice(1, -1).split(', ');
+        client.assert(detailArr.length > 0, `detail: ${JSON.stringify(detail)}`);
+    });
+%}
+
+### Einen Kunden mittels PUT ohne Versionsnummer aktualisieren: 428 (Precondition Required)
+PUT {{restUrl}}/00000000-0000-0000-0000-000000000030
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+< data/kunde-30-put.json
+
+> {%
+    client.test('Einen Kunden mittels PUT ohne Versionsnummer aktualisieren: Precondition Required (428)', () => {
+        const status = response.status;
+        client.assert(status === 428, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PUT ohne Versionsnummer aktualisieren: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/problem+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen Kunden mittels PUT ohne Versionsnummer aktualisieren: body mit ProblemDetails', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(typeof detail === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(detail === 'Versionsnummer fehlt', `detail: ${detail}`);
+    });
+%}
+
+### Einen Kunden mittels PUT mit alter Versionsnummer aktualisieren: 412 (Precondition Failed)
+PUT {{restUrl}}/00000000-0000-0000-0000-000000000030
+If-Match: "-1"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+< data/kunde-30-put.json
+
+> {%
+    client.test('Einen Kunden mittels PUT mit alter Versionsnummer aktualisieren: Precondition Failed (412)', () => {
+        const status = response.status;
+        client.assert(status === 412, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PUT mit alter Versionsnummer aktualisieren: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/problem+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen Kunden mittels PUT mit alter Versionsnummer aktualisieren: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(typeof detail === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(detail === 'Die Versionsnummer -1 ist veraltet.', `detail: ${detail}`);
+    });
+%}
+
+### Einen Kunden mittels PUT mit ungueltiger Versionsnummer aktualisieren: 412 (Precondition Failed)
+PUT {{restUrl}}/00000000-0000-0000-0000-000000000030
+If-Match: "?!:"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+< data/kunde-30-put.json
+
+> {%
+    client.test('Einen Kunden mittels PUT mit ungueltiger Versionsnummer aktualisieren: Precondition Failed (412)', () => {
+        const status = response.status;
+        client.assert(status === 412, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PUT mit ungueltiger Versionsnummer aktualisieren: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/problem+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen Kunden mittels PUT mit ungueltiger Versionsnummer aktualisieren: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(typeof detail === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(detail === 'Ungueltiges ETag "?!:"', `detail: ${detail}`);
+    });
+%}
+
+### Einen Kunden mittels PUT und falschem Passwort aktualisieren: 401 (Unauthorized)
+PUT {{restUrl}}/00000000-0000-0000-0000-000000000030
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{passwordFalsch}}
+
+< data/kunde-30-put.json
+
+> {%
+    client.test('Einen Kunden mittels PUT und falschem Passwort aktualisieren: Unauthorized (401)', () => {
+        const status = response.status;
+        client.assert(status === 401, `Falscher Statuscode: ${status}`);
+    });
+%}

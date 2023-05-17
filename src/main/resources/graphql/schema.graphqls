@@ -1,0 +1,118 @@
+# Copyright (C) 2021 - present Juergen Zimmermann, Hochschule Karlsruhe
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Description in Markdown-Syntax
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"Suche nach Kundendaten"
+type Query {
+  "Suche Kundendaten anhand der ID"
+  kunde(id: ID!): Kunde
+
+  "Suche Kundendaten anhand des Nachnamens oder der Emailadresse"
+  kunden(input: Suchkriterien): [Kunde!]
+}
+
+type Mutation {
+  "Einen neuen Kundendatensatz anlegen"
+  create(input: KundeInput!): CreatePayload
+}
+
+# https://spec.graphql.org/draft/#sec-Types
+# https://www.graphql-scalars.dev/docs/scalars/email-address
+# https://www.graphql-scalars.dev/docs/scalars/local-date
+# https://www.graphql-scalars.dev/docs/scalars/currency
+# enum als String, damit toSting() vom Enum-Wert aufgerufen wird
+"Eigenschaften eines Kunde-Datensatzes mit untergeordneten Eigenschaften"
+type Kunde {
+  id: ID!
+  version: Int!
+  nachname: String!
+  email: String!
+  kategorie: Int!
+  hasNewsletter: Boolean!
+  geburtsdatum: String
+  homepage: String
+  geschlecht: String
+  familienstand: String
+  adresse: Adresse!
+  interessen: [String!]
+  username: String!
+}
+
+type Adresse {
+  plz: String!
+  ort: String!
+}
+
+# https://spec.graphql.org/draft/#sec-Input-Objects
+"Suchkriterien für die Query 'kunden'"
+input Suchkriterien {
+  nachname: String
+  email: String
+}
+
+input KundeInput {
+  nachname: String!
+  email: String!
+  kategorie: Int!
+  hasNewsletter: Boolean!
+  geburtsdatum: String
+  homepage: String
+  geschlecht: Geschlecht
+  familienstand: Familienstand
+  adresse: AdresseInput!
+  umsaetze: [UmsatzInput!]
+  interessen: [Interesse!]
+  username: String!
+  password: String!
+}
+
+enum Geschlecht {
+    WEIBLICH
+    MAENNLICH
+    DIVERS
+}
+
+enum Familienstand {
+    LEDIG
+    VERHEIRATET
+    GESCHIEDEN
+    VERWITWET
+}
+
+enum Interesse {
+    SPORT
+    LESEN
+    REISEN
+}
+
+input UmsatzInput {
+  betrag: String!
+  waehrung: String!
+}
+
+input AdresseInput {
+  plz: String!
+  ort: String!
+}
+
+type CreatePayload {
+  id: String!
+}

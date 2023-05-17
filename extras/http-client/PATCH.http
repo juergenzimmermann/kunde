@@ -1,0 +1,138 @@
+### Einen Kunden mittels PATCH aktualisieren
+PATCH {{restUrl}}/00000000-0000-0000-0000-000000000040
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+[
+    { "op": "replace", "path": "/nachname", "value": "Neuernamepatch" },
+    { "op": "replace", "path": "/email", "value": "new.email@test.depatch" },
+    { "op": "add", "path": "/interessen", "value": "S" },
+    { "op": "remove", "path": "/interessen", "value": "L" }
+]
+
+> {%
+    client.test('Einen Kunden mittels PATCH aktualisieren: No Content (204)', () => {
+        const status = response.status;
+        client.assert(status === 204, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PATCH aktualisieren: ETag', () => {
+        const headers = response.headers;
+        client.assert(typeof headers === 'object', `response: ${JSON.stringify(response)}`);
+        const etag = headers.toJSON().ETag;
+        client.assert(etag !== null && etag !== undefined, `headers: ${JSON.stringify(headers)}`);
+        client.assert(etag.match(/^"\d+"$/).length > 0, `etag: ${etag}`);
+    });
+
+    client.test('Einen Kunden mittels PATCH aktualisieren: leerer body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Einen Kunden mittels PATCH und fehlerhaften Daten aktualisieren: 422 (Unprocessable Entity)
+PATCH {{restUrl}}/00000000-0000-0000-0000-000000000040
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+[
+    { "op": "replace", "path": "/nachname", "value": "?!" },
+    { "op": "replace", "path": "/email", "value": "emailungueltig@" }
+]
+
+> {%
+    client.test('Einen Kunden mittels PATCH und fehlerhaften Daten aktualisieren: Unprocessable Entity (422)', () => {
+        const status = response.status;
+        client.assert(status === 422, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mittels PATCH und fehlerhaften Daten aktualisieren: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/problem+json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen Kunden mittels PATCH und fehlerhaften Daten aktualisieren: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(detail !== null && detail !== undefined && typeof detail === 'string' && detail.length > 2, `body: ${JSON.stringify(body)}`);
+        // noinspection JSObjectNullOrUndefined
+        const detailArr = detail.slice(1, -1).split(', ');
+        client.assert(detailArr.length > 0, `detail: ${JSON.stringify(detail)}`);
+    });
+%}
+
+### Einen Kunden mit fehlerhaften Interessen mittels PATCH aktualisieren: 422 (Bad Request)
+PATCH {{restUrl}}/00000000-0000-0000-0000-000000000040
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+[
+    { "op": "replace", "path": "/nachname", "value": "Neuername" },
+    { "op": "replace", "path": "/email", "value": "new.email@test.de" },
+    { "op": "add", "path": "/interessen", "value": "X" },
+    { "op": "remove", "path": "/interessen", "value": "Y" }
+]
+
+> {%
+    client.test('Einen Kunden mit fehlerhaften Interessen mittels PATCH aktualisieren: Bad Request (422)', () => {
+        const status = response.status;
+        client.assert(status === 422, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen Kunden mit fehlerhaften Interessen mittels PATCH aktualisieren: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/problem+json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen Kunden mit fehlerhaften Interessen mittels PATCH aktualisieren: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+         const detail = body.detail;
+        client.assert(typeof detail === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(detail === 'Mindestens eine ungueltige Patch-Operation', `detail: ${detail}`);
+    });
+%}
+
+### Einen Kunden mittels PATCH und falschem Passwort aktualisieren: 401 (Unauthorized)
+PATCH {{restUrl}}/00000000-0000-0000-0000-000000000001
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userAdmin}} {{passwordFalsch}}
+
+[
+    { "op": "replace", "path": "/nachname", "value": "Neuername" },
+    { "op": "replace", "path": "/email", "value": "new.email@test.de" },
+    { "op": "add", "path": "/interessen", "value": "R" },
+    { "op": "remove", "path": "/interessen", "value": "L" }
+]
+
+> {%
+    client.test('Einen Kunden mittels PATCH und falschem Passwort aktualisieren: Unauthorized (401)', () => {
+        const status = response.status;
+        client.assert(status === 401, `Falscher Statuscode: ${status}`);
+    });
+%}
+
+### Einen Kunden mittels PATCH und fehlenden Rechten aktualisieren: 403 (Forbidden)
+PATCH {{restUrl}}/00000000-0000-0000-0000-000000000001
+If-Match: "0"
+Content-Type: application/json
+Authorization: Basic {{userKunde}} {{password}}
+
+[
+    { "op": "replace", "path": "/nachname", "value": "Neuername" },
+    { "op": "replace", "path": "/email", "value": "new.email@test.de" },
+    { "op": "add", "path": "/interessen", "value": "R" },
+    { "op": "remove", "path": "/interessen", "value": "L" }
+]
+
+> {%
+    client.test('Einen Kunden mittels PATCH und fehlenden Rechten aktualisieren: Forbidden (403)', () => {
+        const status = response.status;
+        client.assert(status === 403, `Falscher Statuscode: ${status}`);
+    });
+%}

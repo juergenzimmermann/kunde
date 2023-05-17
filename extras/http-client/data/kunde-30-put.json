@@ -1,0 +1,11 @@
+{
+    "nachname": "Testput",
+    "email": "Theo@Test.de.put",
+    "kategorie" : 1,
+    "hasNewsletter": true,
+    "geburtsdatum": "2022-01-31",
+    "homepage": "https://www.test.de",
+    "geschlecht": "W",
+    "familienstand": "L",
+    "username": "alpha3"
+}

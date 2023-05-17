@@ -1,0 +1,14 @@
+out
+build
+target
+.gradle
+gradle.properties
+*.idea
+*.iml
+*.ipr
+*.iws
+src/main/resources/.reloadtrigger
+.kpt-pipeline
+extras/postgres/.kpt-pipeline
+extras/mysql/.kpt-pipeline
+extras/http-client/http-client.private.env.json

@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "app.password",
+      "type": "java.lang.String",
+      "description": "Beispielhaftes Passwort fuer Verschluesselung in CommandLineRunner."
+    },
+    {
+      "name": "app.password-falsch",
+      "type": "java.lang.String",
+      "description": "Beispielhaftes, falsches Passwort fuer Verschluesselung in CommandLineRunner."
+    }
+  ]
+}

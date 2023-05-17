@@ -1,0 +1,83 @@
+' Copyright (C) 2019 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+@startuml KundeWriteService
+
+skinparam classAttributeIconSize 0
+
+package java.util {
+    class UUID
+}
+
+package org.springframework {
+    package stereotype {
+        interface Service
+    }
+
+    package transaction.annotation {
+        interface Transactional
+    }
+
+    package security.core.userdetails {
+        interface UserDetails
+    }
+
+    UUID .right[hidden].> UserDetails
+}
+
+package com.acme.kunde {
+    package security {
+        class CustomUserDetailsService << control >> << @Service >>
+    }
+
+    package mail  {
+        class Mailer << control >> << @Service >>
+
+        CustomUserDetailsService .right[hidden].> Mailer
+    }
+
+    package entity {
+        class Kunde << entity >>
+        Kunde .up[hidden].> UUID
+        Kunde .up[hidden].> UserDetails
+    }
+
+    package repository {
+        interface KundeRepository << control >>
+    }
+
+    package service #DDDDDD {
+        class KundeWriteService << control >> << @Service >> {
+            + create(kunde: Kunde, user: UserDetails): Kunde
+            + update(kunde: Kunde, id: UUID, version: String): Kunde
+            + deleteById(id: UUID)
+        }
+
+        KundeWriteService o--> "1" KundeRepository : repo
+        KundeWriteService o--> "1" CustomUserDetailsService : userService
+        KundeWriteService o--> "1" Mailer : mailer
+
+        KundeWriteService .right.> Kunde
+        KundeWriteService .up.> UUID
+        KundeWriteService .up.> UserDetails
+        KundeWriteService .up.> Service
+        KundeWriteService .up.> Transactional
+    }
+}
+
+hide empty members
+
+footer (c) Jürgen Zimmermann
+
+@enduml

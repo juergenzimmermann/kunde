@@ -1,0 +1,73 @@
+### Einloggen als Administrations-User: 200 (OK)
+POST {{authUrl}}/login
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+username={{userAdmin}}&password={{password}}
+
+> {%
+    client.test('Einloggen als Administrations-User: OK (200)', () => {
+        const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einloggen als Administrations-User: application/json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einloggen als Administrations-User: body mit Rollen', () => {
+        const body = response.body;
+        client.assert(Array.isArray(body), `body: ${JSON.stringify(body)}`);
+        client.assert(body.length > 0, `body: ${JSON.stringify(body)}`);
+        body.forEach(role => client.assert(typeof role === 'string', `body: ${JSON.stringify(body)}`));
+    });
+%}
+
+### Eigene Rollen ermitteln: admin
+GET {{authUrl}}/rollen
+Accept: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('Eigene Rollen ermitteln (admin): OK (200)', () => {
+        const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Eigene Rollen ermitteln (admin): application/json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Eigene Rollen ermitteln (admin): body mit Rollen', () => {
+        const body = response.body;
+        client.assert(Array.isArray(body), `body: ${JSON.stringify(body)}`);
+        client.assert(body.length > 0, `body: ${JSON.stringify(body)}`);
+        body.forEach(role => client.assert(typeof role === 'string', `body: ${JSON.stringify(body)}`));
+    });
+%}
+
+### Eigene Rollen ermitteln: kunde
+GET {{authUrl}}/auth/rollen
+Accept: application/json
+Authorization: Basic {{userKunde}} {{password}}
+
+> {%
+    client.test('Eigene Rollen ermitteln (kunde): OK (200)', () => {
+        const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Eigene Rollen ermitteln (kunde): application/json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Eigene Rollen ermitteln (kunde): body mit Rollen', () => {
+        const body = response.body;
+        client.assert(Array.isArray(body), `body: ${JSON.stringify(body)}`);
+        client.assert(body.length > 0, `body: ${JSON.stringify(body)}`);
+        body.forEach(role => client.assert(typeof role === 'string', `body: ${JSON.stringify(body)}`));
+    });
+%}

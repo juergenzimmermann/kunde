@@ -1,0 +1,122 @@
+' Copyright (C) 2019 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+@startuml KundeHandler
+
+skinparam classAttributeIconSize 0
+
+package jakarta.servlet.http {
+    class HttpServletRequest
+}
+
+package org.springframework {
+    package stereotype {
+        interface "@Controller" as Controller
+    }
+    package web.bind.annotation {
+        interface "@ResponseBody" as ResponseBody
+        interface "@RequestMapping" as RequestMapping
+        interface "@PathVariable" as PathVariable
+        interface "@RequestParam" as RequestParam
+        interface "@ExceptionHandler" as ExceptionHandler
+        interface "@ResponseStatus" as ResponseStatus
+
+        RequestMapping .left[hidden].> Controller
+    }
+
+    package http {
+        class ResponseEntity<T>
+    }
+    package hateoas {
+        class CollectionModel<E>
+    }
+    package security.core {
+        class Authentication
+    }
+    package util {
+        class MultiValueMap<K,V>
+    }
+
+    CollectionModel .up[hidden].> Authentication
+    ResponseEntity .up[hidden].> CollectionModel
+}
+
+package java.util {
+    class UUID
+
+    UUID .up[hidden].> HttpServletRequest
+}
+
+package com.acme.kunde {
+    package entity {
+        class Kunde << entity >>
+    }
+
+    package service {
+        class KundeReadService << control >> << @Service >>
+        class NotFoundException
+        class AccessForbiddenException
+
+        KundeReadService .right[hidden].> NotFoundException
+        NotFoundException .right[hidden].> AccessForbiddenException
+    }
+
+    package rest #DDDDDD {
+        class KundeModel <<entity>>
+
+        class KundeGetController << boundary >> << @Controller >> << @ResponseBody >> << @RequestMapping >> {
+            + @GetMapping getById(@PathVariable id: UUID, @RequestHeader("If-None-Match") version: String, request: HttpServletRequest, authentication: Authentication): ResponseEntity<KundeModel>
+            + @GetMapping get(@RequestParam queryParams: MultiValueMap<String, String>, request: HttpServletRequest)
+        }
+
+        class CommonExceptionHandler << @ControllerAdvice >> {
+            + @ExceptionHandler @ResponseStatus onNotFound(ex: NotFoundException)
+            + @ExceptionHandler @ResponseStatus onAccessForbidden(ex: AccessForbiddenException)
+        }
+
+        KundeGetController o-right-> "1" KundeReadService : service
+        KundeGetController ..> KundeModel
+        KundeGetController ..> Kunde
+
+        KundeGetController .up.> CollectionModel
+        KundeGetController .right.> HttpServletRequest
+        KundeGetController .up.> MultiValueMap
+        KundeGetController .up.> Authentication
+        KundeGetController .up.> ResponseEntity
+
+        KundeGetController .up.> Controller
+        KundeGetController .up.> ResponseBody
+        KundeGetController .up.> RequestMapping
+        KundeGetController .up.> PathVariable
+        KundeGetController .up.> RequestParam
+
+        CommonExceptionHandler .up.> ExceptionHandler
+        CommonExceptionHandler .up.> ResponseStatus
+        CommonExceptionHandler ..> NotFoundException
+        CommonExceptionHandler ..> AccessForbiddenException
+        CommonExceptionHandler .up[hidden].> KundeModel
+        CommonExceptionHandler .[hidden].> Kunde
+
+        KundeGetController .right.> UUID
+
+        KundeModel ..> Kunde
+        KundeModel .[hidden].> KundeReadService
+    }
+}
+
+hide empty members
+
+footer (c) Juergen Zimmermann
+
+@enduml

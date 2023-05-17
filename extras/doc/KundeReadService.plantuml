@@ -1,0 +1,77 @@
+' Copyright (C) 2019 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+@startuml KundeService
+
+skinparam classAttributeIconSize 0
+
+package java.util {
+    interface List<T>
+    interface Map<K, V>
+    class UUID
+}
+
+package org.springframework {
+    package stereotype {
+        interface Service
+    }
+
+    package transaction.annotation {
+        interface Transactional
+    }
+
+    package security.core.userdetails {
+        interface UserDetails
+    }
+
+    List .right[hidden].> UserDetails
+}
+
+
+package com.acme.kunde {
+    package entity {
+        class Kunde << entity >>
+
+        Kunde .up[hidden].> UUID
+        Kunde .up[hidden].> UserDetails
+        Kunde .up[hidden].> Service
+        Kunde .up[hidden].> Transactional
+    }
+
+    package repository {
+        interface KundeRepository << control >>
+    }
+
+    package service #DDDDDD {
+        class KundeReadService << control >> << @Service >> {
+            + findById(id: UUID, user: UserDetails): Kunde
+            + find(suchkriterien: Map<String, List<String>>): List<Kunde>
+        }
+
+        KundeReadService o--> "1" KundeRepository : repo
+        KundeReadService .up.> Kunde
+        KundeReadService .up.> UUID
+        KundeReadService .up.> List
+        KundeReadService .up.> Map
+        KundeReadService .up.> Service
+        KundeReadService ..> Transactional
+        KundeReadService ..> UserDetails
+    }
+}
+
+hide empty members
+
+footer (c) Jürgen Zimmermann
+
+@enduml

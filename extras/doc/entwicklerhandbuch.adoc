@@ -1,0 +1,170 @@
+// Copyright (C) 2019 - present Juergen Zimmermann, Hochschule Karlsruhe
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+= Entwicklerhandbuch
+Jürgen Zimmermann <Juergen.Zimmermann@h-ka.de>
+:doctype: book
+:toc: left
+:sectanchors:
+:sectlinks:
+:sectnums:
+:source-highlighter: coderay
+:icons: font
+
+// https://github.com/asciidoctor/asciidoctorj
+// https://github.com/asciidoctor/asciidoctor-diagram
+// http://de.plantuml.com/classes.html
+// http://de.plantuml.com/component.html
+// https://github.com/odrotbohm/asciidoctor-plantuml
+
+IMPORTANT: Copyright (C) 2015 - present Jürgen Zimmermann, Hochschule Karlsruhe. +
+           Free use of this software is granted under the terms of the
+           GNU General Public License (GPL) v3. +
+           For the full text of the license, see the http://www.gnu.org/licenses/gpl-3.0.html[license] file.
+
+== Der Microservice Kunde
+
+=== Der Microservice im Überblick
+
+Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Cras ultricies ligula sed magna dictum porta.
+
+.Architektur als C4 Modell für die Microservices
+[plantuml,c4,svg]
+----
+include::./c4.plantuml[]
+----
+
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam,
+eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+
+.Use Cases für den Microservice "kunde"
+[plantuml,use-cases,svg]
+----
+include::./use-cases.plantuml[]
+----
+
+Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Vestibulum ac diam sit amet quam vehicula
+elementum sed sit amet dui.
+
+.Komponenten für die REST-Schnittstelle
+[plantuml,komponenten,svg]
+----
+include::./komponenten.plantuml[]
+----
+
+=== Die REST-Schnittstelle
+
+Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Donec sollicitudin molestie malesuada.
+
+."KundeGetController" für Lesezugriffe an der REST-Schnittstelle
+[plantuml,KundeGetController,svg]
+----
+include::./KundeGetController.plantuml[]
+----
+
+.Die Klasse "KundeModel" für den Datenaustausch bei GET
+[plantuml,KundeModel,svg]
+----
+include::./KundeModel.plantuml[]
+----
+
+."Sequenzdiagramm" mit den Methodenaufrufen
+[plantuml,sequenzdiagramm,svg]
+----
+include::sequenzdiagramm.plantuml[]
+----
+
+."KundeWriteController" für Schreibzugriffe an der REST-Schnittstelle
+[plantuml,KundeWriteController,svg]
+----
+include::./KundeWriteController.plantuml[]
+----
+
+.Die Klasse "KundeUserDTO" für den Datenaustausch bei POST
+[plantuml,KundeUserDTO,svg]
+----
+include::./KundeUserDTO.plantuml[]
+----
+
+=== Die Geschäftslogik
+
+Proin eget tortor risus. Curabitur aliquet quam id dui posuere blandit.
+
+."KundeReadService" im Anwendungskern
+[plantuml,KundeReadService,svg]
+----
+include::./KundeReadService.plantuml[]
+----
+
+."KundeWriteService" für die Geschäftslogik
+[plantuml,KundeWriteService,svg]
+----
+include::./KundeWriteService.plantuml[]
+----
+
+=== Die Entity-Klassen
+
+Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Donec rutrum congue leo eget malesuada.
+
+.Die Entity-Klasse "Kunde" für Kundendaten
+[plantuml,Kunde,svg]
+----
+include::./Kunde.plantuml[]
+----
+
+=== ER-Diagramm
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+.ER-Diagramm
+[plantuml,ER-Diagramm,svg]
+----
+include::./er-diagramm.plantuml[]
+----
+
+== Programmierrichtlinien
+
+TIP: Als Studierende/r sollte man sich frühzeitig an Programmierrichtlinien
+     gewöhnen. Das hinterlässt im späteren Praxissemester einen professionellen Eindruck.
+
+=== Java
+
+[horizontal]
+_Google_:: https://google.github.io/styleguide/javaguide.html
+_Microsoft Azure_:: https://azure.github.io/azure-sdk/java_introduction.html
+_Mozilla_:: https://firefox-source-docs.mozilla.org/code-quality/coding-style/coding_style_java.html
+
+=== SQL
+
+[horizontal]
+_SQL_:: https://www.sqlstyle.guide
+
+=== TypeScript und JavaScript
+
+[horizontal]
+_Microsoft_:: https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines
+_Angular_:: https://angular.io/guide/style-guide.html
+_Google_:: https://google.github.io/styleguide/tsguide.html
+_React_:: https://github.com/airbnb/javascript/tree/master/react
+
+=== Python
+
+[horizontal]
+_Google_:: https://google.github.io/styleguide/pyguide.html
+
+=== Kotlin
+
+[horizontal]
+_Kotlin_:: https://kotlinlang.org/docs/coding-conventions.html
+_Android_:: https://developer.android.com/kotlin/style-guide

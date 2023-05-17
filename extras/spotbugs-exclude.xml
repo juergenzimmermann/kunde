@@ -1,0 +1,27 @@
+<!-- https://spotbugs.readthedocs.io/en/stable/filter.html#introduction-to-filter-files -->
+<FindBugsFilter>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.acme.kunde.entity.Kunde_" />
+    </Match>
+    <Match>
+        <Class name="com.acme.kunde.entity.Adresse_" />
+    </Match>
+    <Match>
+        <Class name="com.acme.kunde.entity.Umsatz_" />
+    </Match>
+    <Match>
+        <Class name="com.acme.kunde.security.Login_" />
+    </Match>
+    <Match>
+        <Class name="com.acme.bestellung.entity.Bestellung_" />
+    </Match>
+    <Match>
+        <Class name="com.acme.bestellung.entity.Bestellposition_" />
+    </Match>
+</FindBugsFilter>

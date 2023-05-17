@@ -1,0 +1,199 @@
+# Copyright (C) 2016 - present Juergen Zimmermann, Hochschule Karlsruhe
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+---
+server:
+  #port: 8080
+  compression:
+    enabled: true
+    mime-types: application/hal+json
+    min-response-size: 2KB
+  error.whitelabel.enabled: false
+  http2.enabled: true
+  # https://docs.spring.io/spring-boot/docs/3.1.0-RC1/reference/htmlsingle/#howto.webserver.configure-ssl
+  ssl.bundle: microservice
+  shutdown: graceful
+
+spring:
+  application.name: kunde
+  aop.proxy-target-class: false
+  datasource:
+    url: jdbc:postgresql://localhost/kunde
+    #url: jdbc:mysql://localhost/kunde
+    username: kunde
+    password: Change Me!
+  flyway:
+    locations: classpath:db/migration/{vendor}
+    create-schemas: false
+    # Tablespace fuer flyway_schema_history
+    # MySQL: Flyway generiert bei "CREATE TABLE flyway_schema_history ..." nicht "ROW_FORMAT=COMPACT"
+    # Oracle: CREATE TABLESPACE ist sehr kompliziert https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/CREATE-TABLESPACE.html
+    #tablespace: kundespace
+  jpa:
+    #database-platform: POSTGRESQL
+    hibernate:
+      # https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#configurations-hbmddl
+      #ddl-auto: none
+      naming.physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    open-in-view: false
+    properties:
+      # https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/cfg/AvailableSettings.html
+      # https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/cfg/Environment.html
+      hibernate:
+        #default_schema: kunde
+        jdbc:
+          time_zone: Europe/Berlin
+          batch_versioned_data: true
+          # fuer Oracle: der Treiber teilt bei SELECT das Resultat in standardmaessig maximal 10 Datensaetze auf
+          #fetch_size: 10
+        order_inserts: true
+        order_updates: true
+        session.events.log.LOG_QUERIES_SLOWER_THAN_MS: 20
+        xml_mapping_enabled: false
+        #mapping.default_list_semantics: LIST
+      # https://stackoverflow.com/questions/31585698/spring-boot-jpa2-hibernate-enable-second-level-cache
+      # https://jakarta.ee/xml/ns/persistence
+      # https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd
+      jakarta.persistence:
+        sharedCache.mode: ENABLE_SELECTIVE
+        validation.mode: NONE
+        # Generierung eines SQL-Skripts mit CREATE TABLE im Wurzelverzeichnis
+        # https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#configurations-hbmddl
+        #schema-generation.scripts:
+        #  action: create
+        #  create-target: create.sql
+  # siehe org.springframework.boot.autoconfigure.jackson.JacksonProperties
+  jackson:
+    default-property-inclusion: non_null
+    # siehe com.fasterxml.jackson.databind.DeserializationFeature
+    deserialization.read-enums-using-to-string: true
+    # siehe com.fasterxml.jackson.databind.SerializationFeature
+    serialization.write-enums-using-to-string: true
+  lifecycle.timeout-per-shutdown-phase: 3s
+  mail:
+    host: smtp.acme.com
+    port: 25
+    #protocol: smtp
+    properties.mail:
+      debug: false
+      smtp:
+        auth: false
+        starttls.enable: false
+    # Mailserver des IZ
+    #host: smtp.h-ka.de
+    #port: 23
+    #username: nnvv0011
+    #password: blabla
+    # GMail
+    #host: smtp.gmail.com
+    #port: 587
+    #properties.mail.smtp.starttls.enable: true
+  main.lazy-initialization: true
+  mvc.problemdetails.enabled: true
+  security.user.password: p
+  spel.ignore: true
+  # https://docs.spring.io/spring-boot/docs/3.1.0-RC1/reference/htmlsingle/#features.ssl.jks
+  ssl.bundle.jks.microservice:
+    key:
+      alias: microservice
+    keystore:
+      location: classpath:keystore.p12
+      password: zimmermann
+      type: PKCS12
+    truststore:
+      location: classpath:truststore.p12
+      password: zimmermann
+      type: PKCS12
+
+info.app:
+  author: Juergen Zimmermann
+  lecture: Softwarearchitektur und Microservices
+  semester: 3 und 5
+  course: Wirtschaftsinformatik und Informatik
+
+management:
+  endpoints.web.exposure.include: "*"
+  metrics.tags.application: kunde
+  # Trace every action
+  # https://springbootlearning.medium.com/using-micrometer-to-trace-your-spring-boot-app-1fe6ff9982ae
+  tracing.sampling.probability: "1.0"
+
+# --------------------------------------------------------
+# E i g e n e   P r o p e r t i e s
+# --------------------------------------------------------
+#app.mail:
+#  from: Theo Test <theo@test.de>
+#  sales: Maxi Musterfrau <maxi.musterfrau@test.de>
+
+---
+# alternativ: azure_app_service, sap, heroku
+spring.config.activate.on-cloud-platform: kubernetes
+management.endpoint.health:
+  enabled: true
+  probes.enabled: true
+  show-details: ALWAYS
+spring.lifecycle.timeout-per-shutdown-phase: 30s
+
+---
+spring:
+  config.activate.on-profile: dev
+  devtools.restart:
+    #enabled: true
+    #poll-interval: 1s
+    #quiet-period: 400ms
+    trigger-file: .reloadtrigger
+  flyway.clean-disabled: false
+  mail:
+    host: localhost
+    port: 5025
+  mvc.log-request-details: true
+  jpa.properties:
+    # https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/cfg/AvailableSettings.html
+    # https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/cfg/Environment.html
+    hibernate:
+      connection.pool_size: 10
+      format_sql: true
+      highlight_sql: true
+      # https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/tool/schema/internal/script/MultiLineSqlScriptExtractor.html
+      #hbm2ddl.import_files_sql_extractor: org.hibernate.tool.schema.internal.script.MultiLineSqlScriptExtractor
+      use_sql_comments: true
+      # Generierung eines SQL-Skripts mit CREATE TABLE im Wurzelverzeichnis
+      # https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#configurations-hbmddl
+      #jakarta.persistence.schema-generation.scripts:
+      #  action: create
+      #  create-target: create.sql
+  # Pfad fuer GraphQL: /graphql
+  graphql:
+    # Pfad für Schema: /graphql/schema
+    schema.printer.enabled: true
+    # Pfad fuer GraphiQL: /graphiql
+    graphiql.enabled: true
+  jackson.serialization.indent-output: true
+  #devtools:
+  #  livereload.enabled: false
+  #  restart.trigger-file: /restart.txt
+  #http.log-request-details: true
+management:
+  endpoint:
+    health:
+      enabled: true
+      probes.enabled: true
+      show-details: ALWAYS
+    shutdown.enabled: true
+  info.os.enabled: true
+
+app:
+  password: p
+  password-falsch: FALSCH

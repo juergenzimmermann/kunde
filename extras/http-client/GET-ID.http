@@ -1,0 +1,150 @@
+// https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html
+// https://www.jetbrains.com/help/idea/exploring-http-syntax.html
+// https://www.jetbrains.com/help/idea/http-response-handling-examples.html#checking-response-headers-body
+
+### Suche mit vorhandener Kunde-ID als admin
+GET {{restUrl}}/00000000-0000-0000-0000-000000000001
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit ID und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit ID und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit ID und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        // TODO Optional Chaining
+        const href = body._links.self.href;
+        client.assert(typeof href === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(href.match(/[A-Fa-f\d]{8}-([A-Fa-f\d]{4}-){3}[A-Fa-f\d]{12}$/).length > 0, `href: ${href}`);
+    });
+%}
+
+### Suche mit nicht-vorhandener Kunde-ID: 404 (Not Found)
+GET {{restUrl}}/99999999-9999-9999-9999-999999999999
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit nicht-vorhandener Kunde-ID: Not Found', () => {
+        const status = response.status;
+        client.assert(status === 404, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit nicht-vorhandener Kunde-ID: leerer Body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Suche ohne Benutzername und Passwort
+GET {{restUrl}}/00000000-0000-0000-0000-000000000001
+Accept: application/hal+json
+
+> {%
+    client.test('GET mit ID ohne Benutzername und Passwort: Unauthorized', () => {
+        const status = response.status;
+        client.assert(status === 401, `Falscher Statuscode: ${status}`);
+    });
+%}
+
+### Suche mit falschem Passwort: 401 (Unauthorized)
+GET {{restUrl}}/00000000-0000-0000-0000-000000000001
+Accept: application/hal+json
+Authorization: Basic Basic {{userAdmin}} {{passwordFalsch}}
+
+> {%
+    client.test('GET mit ID und falschem Passwort: Unauthorized', () => {
+        const status = response.status;
+        client.assert(status === 401, `Falscher Statuscode: ${status}`);
+    });
+%}
+
+### Suche mit vorhandener Kunde-ID als kunde
+GET {{restUrl}}/00000000-0000-0000-0000-000000000001
+Accept: application/hal+json
+Authorization: Basic {{userKunde}} {{password}}
+
+> {%
+    client.test('GET mit ID und kunde: OK', () => {
+        const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit ID und kunde: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/hal+json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit ID und kunde: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const href = body._links.self.href;
+        client.assert(typeof href === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(href.match(/[A-Fa-f\d]{8}-([A-Fa-f\d]{4}-){3}[A-Fa-f\d]{12}$/).length > 0, `href: ${href}`);
+    });
+%}
+
+### Suche mit fehlenden Rechten: 403 (Forbidden)
+GET {{restUrl}}/00000000-0000-0000-0000-000000000020
+Accept: application/hal+json
+Authorization: Basic {{userKunde}} {{password}}
+
+> {%
+    client.test('GET mit ID und fehlenden Rechten: Forbidden', () => {
+        const status = response.status;
+        client.assert(status === 403, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit ID und fehlenden Rechten: leerer Body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Suche mit vorhandener Kunde-ID und ETag: Not Modified
+GET {{restUrl}}/00000000-0000-0000-0000-000000000001
+Accept: application/hal+json
+If-None-Match: "0"
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit Kunde-ID und ETag: Not Modified', () => {
+        const status = response.status;
+        client.assert(status === 304, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit Kunde-ID und ETag: leerer Body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Suche mit vorhandener Kunde-ID und falschem ETag: 200 (OK)
+GET {{restUrl}}/00000000-0000-0000-0000-000000000001
+Accept: application/hal+json
+If-None-Match: 0
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('Falsches ETag: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Falsches ETag: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const href = body._links.self.href;
+        client.assert(typeof href === 'string', `body: ${JSON.stringify(body)}`);
+        client.assert(href.match(/[A-Fa-f\d]{8}-([A-Fa-f\d]{4}-){3}[A-Fa-f\d]{12}$/).length > 0, `href: ${href}`);
+    });
+%}

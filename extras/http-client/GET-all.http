@@ -1,0 +1,60 @@
+// https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html
+// https://www.jetbrains.com/help/idea/http-response-handling-examples.html#checking-response-headers-body
+
+### Suche alle Kunden
+GET {{restUrl}}
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET als admin: OK', () => {
+        const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET als admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET als admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        // TODO Optional Chaining
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+    });
+%}
+
+### Suche alle Kunden mit falschem Passwort: 401 (Unauthorized)
+GET {{restUrl}}
+Authorization: Basic {{userAdmin}} {{passwordFalsch}}
+
+> {%
+    client.test('GET mit falschem Passwort: Unauthorized', () => {
+        const status = response.status;
+        client.assert(status === 401, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Löschen mit falschem Passwort: leerer body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Suche alle Kunden mit fehlenden Rechten: 403 (Forbidden)
+GET {{restUrl}}
+Authorization: Basic {{userKunde}} {{password}}
+
+> {%
+    client.test('GET mit fehlenden Rechten: Forbidden', () => {
+        const status = response.status;
+        client.assert(status === 403, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Löschen fehlenden Rechten: body mit Fehlermeldung', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object' && body.error === 'Forbidden', `body: ${JSON.stringify(body)}`);
+    });
+%}

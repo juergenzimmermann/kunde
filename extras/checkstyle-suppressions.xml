@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- https://stackoverflow.com/questions/32690907/how-do-i-get-checkstyle-customimportorder-to-work-with-intellij-properly#answer-64243861 -->
+    <!-- https://omindu.medium.com/configuring-intellij-idea-to-overcome-checkstyle-wrong-order-for-import-issues-91a32b5096c7 -->
+    <!-- Let javax.* stand before java.* - that's default Idea settings  -->
+    <!--
+    <suppress checks="CustomImportOrder"
+              message="Wrong lexicographical order for 'java\.[^']+' import\. Should be before 'javax\.[^']+'\."/>
+    -->
+</suppressions>

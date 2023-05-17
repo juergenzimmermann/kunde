@@ -1,0 +1,41 @@
+# Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# "." am Anfang bezeichnet den Top-Level Namensraum bei Helm
+
+apiVersion: v1
+# https://kubernetes.io/docs/concepts/configuration/configmap
+kind: ConfigMap
+metadata:
+  name: {{ include "kunde.fullname" . }}
+  namespace: {{ .Values.namespace }}
+data:
+  # Key-Value-Paare (hier: fuer die Umgebungsvariable)
+  TZ: Europe/Berlin
+  LANG: de_DE.utf8
+  SPRING_MAIL_HOST: {{ .Values.mailhost }}
+  SPRING_PROFILES_DEFAULT: {{ .Values.profile }}
+  SPRING_PROFILES_ACTIVE: {{ .Values.profile }}
+  SPRING_OUTPUT_ANSI_ENABLED: ALWAYS
+  SERVER_SSL_ENABLED: {{ quote .Values.ssl }}
+  SERVER_HTTP2_ENABLED: {{ quote .Values.http2 }}
+  SERVER_TOMCAT_BASEDIR: /tmp
+  APPLICATION_LOGLEVEL: {{ .Values.logLevel.application }}
+  REQUEST_RESPONSE_LOGLEVEL: {{ .Values.logLevel.requestResponse }}
+  HIBERNATE_LOGLEVEL: {{ .Values.logLevel.hibernate }}
+  FLYWAY_LOGLEVEL: {{ .Values.logLevel.flyway }}
+  SPRING_DATASOURCE_URL: {{ .Values.datasource.url }}
+  SPRING_DATASOURCE_USERNAME: {{ .Values.datasource.username }}
+  SPRING_H2_CONSOLE_ENABLED: {{ quote .Values.h2.console.enabled }}

@@ -1,0 +1,5 @@
+<!-- AspectJ wird von Allure genutzt -->
+<!-- https://stackoverflow.com/questions/36976374/warning-javax-types-are-not-being-woven-because-the-weaver-option-xsetweave -->
+<aspectj>
+    <weaver options="-nowarn"/>
+</aspectj>

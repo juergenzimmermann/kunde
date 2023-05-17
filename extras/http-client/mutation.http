@@ -1,0 +1,110 @@
+### Einen neuen Kunden anlegen
+GRAPHQL {{graphqlUrl}}
+Authorization: Basic {{userAdmin}} {{password}}
+
+mutation {
+  create(
+    input: {
+      nachname: "Neuernachname-Graphql"
+      email: "neue.email.graphql@test.de"
+      kategorie: 1
+      hasNewsletter: true
+      geburtsdatum: "2022-01-31"
+      homepage: "https://test.de"
+      geschlecht: WEIBLICH
+      familienstand: LEDIG
+      adresse: {
+        plz: "11111"
+        ort: "Testort"
+      }
+      umsaetze: [{
+        betrag: "1"
+        waehrung: "EUR"
+      }]
+      interessen: [SPORT, REISEN]
+      username: "neugraphql"
+      password: "Pass123."
+    }
+  ) {
+    id
+  }
+}
+> {%
+    client.test('Mutation neuer Kunde: OK', () => {
+        const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Mutation neuer Kunde: application/json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Mutation neuer Kunde: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        // TODO Optional Chaining
+        const create = body.data.create;
+        client.assert(typeof create === 'object', `data: ${JSON.stringify(body.data)}`);
+        const id = create.id;
+        client.assert(typeof id === 'string', `create: ${JSON.stringify(create)}`);
+    });
+%}
+
+### Einen neuen Kunden mit fehlerhaften Daten anlegen
+GRAPHQL {{graphqlUrl}}
+Authorization: Basic {{userAdmin}} {{password}}
+
+mutation {
+  create(
+    input: {
+      nachname: "?!:"
+      email: "email"
+      kategorie: 11
+      hasNewsletter: true
+      geburtsdatum: "2022-01-31"
+      homepage: "https://acme.com"
+      geschlecht: WEIBLICH
+      familienstand: LEDIG
+      adresse: {
+        plz: "1"
+        ort: "Testort"
+      }
+      umsaetze: [{
+        betrag: "1"
+        waehrung: "EUR"
+      }]
+      interessen: [SPORT, REISEN]
+      username: "test"
+      password: "Pass123."
+    }
+  ) {
+    id
+  }
+}
+> {%
+    client.test('Mutation neuer Kunde mit fehlerhaften Daten: OK', () => {
+        const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Mutation neuer Kunde mit fehlerhaften Daten: application/json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Mutation neuer Kunde mit fehlerhaften Daten: body mit Errors ohne Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        client.assert(typeof body.data === 'object', `body: ${JSON.stringify(body)}`);
+        client.assert(Object.keys(body.data).length === 0, `data: ${JSON.stringify(body.data)}`);
+        // TODO Optional Chaining
+        const errors = body.errors;
+        client.assert(Array.isArray(errors) === true, `errors: ${JSON.stringify(body.errors)}`);
+        client.assert(errors.length > 0, `errors: ${JSON.stringify(body.errors)}`);
+        client.assert(typeof errors[0].extensions.classification === 'string', `errors: ${JSON.stringify(errors)}`);
+        client.assert(errors[0].extensions.classification === 'BAD_REQUEST', `errors: ${JSON.stringify(errors)}`);
+        errors.map(error => error.extensions.classification)
+    .forEach(classification => client.assert(classification === 'BAD_REQUEST', `classification: ${JSON.stringify(classification)}`));
+    });
+%}

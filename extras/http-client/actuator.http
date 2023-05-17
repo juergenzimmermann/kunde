@@ -1,0 +1,33 @@
+### Uebersicht
+GET {{actuatorUrl}}
+Authorization: Basic {{userAdmin}} {{password}}
+
+### Info
+GET {{actuatorUrl}}/info
+Authorization: Basic {{userAdmin}} {{password}}
+
+### Mappings
+GET {{actuatorUrl}}/mappings
+Authorization: Basic {{userAdmin}} {{password}}
+
+### Spring Beans
+GET {{actuatorUrl}}/beans
+Authorization: Basic {{userAdmin}} {{password}}
+
+### Umgebung und Properties
+GET {{actuatorUrl}}/env
+Authorization: Basic {{userAdmin}} {{password}}
+
+### "Health" der genutzten Services, wie z.B. DB-Client oder Mail-Client
+GET {{actuatorUrl}}/health
+
+### Liveness
+GET {{actuatorUrl}}/health/liveness
+
+### Readiness
+GET {{actuatorUrl}}/health/readiness
+
+### Shutdown
+POST {{actuatorUrl}}/shutdown
+Authorization: Basic {{userAdmin}} {{password}}
+Content-Type: application/json

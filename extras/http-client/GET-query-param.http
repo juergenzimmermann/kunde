@@ -1,0 +1,349 @@
+// https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html
+// https://www.jetbrains.com/help/idea/http-response-handling-examples.html#checking-response-headers-body
+
+### Suche mit Teilstring fuer vorhandene Nachnamen
+GET {{restUrl}}/?nachname=i
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit Teilstring fuer vorhandene Nachnamen und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit Teilstring fuer vorhandene Nachnamen und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit Teilstring fuer vorhandene Nachnamen und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden.map(kunde => kunde.nachname)
+            .forEach(nachname => client.assert(nachname.includes('i'), `nachname: ${JSON.stringify(nachname)}`));
+    });
+%}
+
+### Suche mit vorhandenem Nachnamen
+GET {{restUrl}}/?nachname=Alpha
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit vorhandenem Nachnamen und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit vorhandenem Nachnamen und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit vorhandenem Nachnamen und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden.map(kunde => kunde.nachname)
+            .forEach(nachname => client.assert(nachname === 'Alpha', `nachname: ${JSON.stringify(nachname)}`));
+    });
+%}
+
+### Suche mit nicht-vorhandenem Nachnamen
+GET {{restUrl}}/?nachname=Zeta
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit nicht-vorhandenem Nachnamen: Not Found', () => {
+        const status = response.status;
+        client.assert(status === 404, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit nicht-vorhandenem Nachnamen: leerer Body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Suche mit vorhandener Email
+GET {{restUrl}}/?email=admin%40acme.com
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit vorhandener Email und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit vorhandener Email und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit vorhandener Email und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(typeof kunden === 'object', `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length === 1);
+        const kunde = kunden[0];
+        client.assert(kunde.email === 'admin@acme.com', `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Suche mit nicht-vorhandener Email: 404 (Not Found)
+GET {{restUrl}}/?email=NICHT%40VORHAN.DEN
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit nicht-vorhandener Email: Not Found', () => {
+        const status = response.status;
+        client.assert(status === 404, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit nicht-vorhandener Email: leerer Body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Suche mit vorhandenem (Teil-) Nachnamen und PLZ
+GET {{restUrl}}/?nachname=A&plz=1
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, PLZ und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, PLZ und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, PLZ und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden.forEach(kunde => {
+          client.assert(kunde.nachname.includes('a'), `kunde (nachname): ${JSON.stringify(kunde)}`);
+          client.assert(kunde.adresse.plz.startsWith('1'), `kunde (plz): ${JSON.stringify(kunde)}`);
+        });
+    });
+%}
+
+### Suche mit vorhandenem (Teil-) Nachnamen und Ort
+GET {{restUrl}}/?nachname=a&ort=aa
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Ort und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Ort und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Ort und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden.forEach(kunde => {
+          client.assert(kunde.nachname.includes('a') || kunde.nachname.startsWith('A'), `kunden (nachname): ${JSON.stringify(kunde)}`);
+          client.assert(kunde.adresse.ort.startsWith('Aa'), `kunden (ort): ${JSON.stringify(kunde)}`);
+        });
+    });
+%}
+
+### Suche mit vorhandenem (Teil-) Nachnamen, PLZ und Ort
+GET {{restUrl}}/?nachname=a&plz=1&ort=A
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, PLZ, Ort und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, PLZ, Ort und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, PLZ, Ort und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden.forEach(kunde => {
+            client.assert(kunde.nachname.includes('a') || kunde.nachname.startsWith('A'), `kunde (nachname): ${JSON.stringify(kunde)}`);
+            const adresse = kunde.adresse;
+            client.assert(adresse.plz.startsWith('1'), `kunde (plz): ${JSON.stringify(kunde)}`);
+            client.assert(adresse.ort.startsWith('A'), `kunde (ort): ${JSON.stringify(kunde)}`);
+        });
+    });
+%}
+
+### Suche mit vorhandenem (Teil-) Nachnamen und Geschlecht
+GET {{restUrl}}/?nachname=a&geschlecht=W
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Geschlecht und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Geschlecht und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Geschlecht und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden.forEach(kunde => {
+          client.assert(kunde.nachname.includes('a') || kunde.nachname.startsWith('A'), `kunde (nachname): ${JSON.stringify(kunde)}`);
+          client.assert(kunde.geschlecht === 'W', `kunde (geschlecht): ${JSON.stringify(kunde)}`);
+        });
+    });
+%}
+
+### Suche mit vorhandenem (Teil-) Nachnamen und Familienstand
+GET {{restUrl}}/?nachname=a&familienstand=VH
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Familienstand und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Familienstand und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit vorhandenem (Teil-) Nachnamen, Familienstand und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden.forEach(kunde => {
+          client.assert(kunde.nachname.startsWith('A') || kunde.nachname.includes('a'), `kunde (nachname): ${JSON.stringify(kunde)}`);
+          client.assert(kunde.familienstand === 'VH', `kunde (familienstand): ${JSON.stringify(kunde)}`);
+        });
+    });
+%}
+
+### Suche mit einem Interesse
+GET {{restUrl}}/?interesse=L
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit einem Interesse und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit einem Interesse und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit einem Interesse und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden
+            .map(kunde => kunde.interessen)
+            .forEach(interessen => client.assert(interessen.includes('L'), `interessen: ${JSON.stringify(interessen)}`));
+    });
+%}
+
+### GET mit mehreren Interessen und admin
+GET {{restUrl}}/?interesse=R&interesse=S
+Accept: application/hal+json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('GET mit mehreren Interessen und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('GET mit mehreren Interessen und admin: application/hal+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/hal+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('GET mit mehreren Interessen und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const kunden = body._embedded.kunden;
+        client.assert(Array.isArray(kunden), `body: ${JSON.stringify(body)}`);
+        client.assert(kunden.length > 0, `kunden: ${JSON.stringify(kunden)}`);
+        kunden
+            .map(kunde => kunde.interessen)
+            .forEach(interessen => {
+                client.assert(interessen.includes('R'), `interessen (R): ${JSON.stringify(interessen)}`)
+                client.assert(interessen.includes('S'), `interessen (S): ${JSON.stringify(interessen)}`)
+            });
+    });
+%}
+
+### Suche Nachnamen mit Praefix
+GET {{restUrl}}//nachname/a
+Accept: application/json
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('Suche Nachnamen mit Praefix und admin: OK', () => {
+      const status = response.status;
+        client.assert(status === 200, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Suche Nachnamen mit Praefix und admin: application/json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Suche Nachnamen mit Praefix und admin: body mit Daten', () => {
+        const body = response.body;
+        client.assert(typeof body === 'string', `Falscher body: ${typeof body}`);
+        const nachnamen = body.slice(1, body.length - 2).split(', ');
+        client.assert(Array.isArray(nachnamen), `body: ${JSON.stringify(body)}`);
+        client.assert(nachnamen.length > 0, `nachnamen: ${JSON.stringify(nachnamen)}`);
+        nachnamen.forEach(nachname => nachname.startsWith('A'), `body: ${body}`);
+    });
+%}

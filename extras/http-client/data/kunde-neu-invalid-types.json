@@ -1,0 +1,26 @@
+{
+    "nachname": "Test",
+    "email": "Theo@Test.de",
+    "kategorie" : 1,
+    "hasNewsletter": true,
+    "geburtsdatum": "123",
+    "homepage": "123!",
+    "geschlecht": "W",
+    "familienstand": "L",
+    "adresse": {
+        "plz": 12345,
+        "ort": "Testort"
+    },
+    "umsaetze": [{
+        "betrag": 0,
+        "waehrung": "Xy"
+    }],
+    "interessen": [
+        "R",
+        "L"
+    ],
+   "user": {
+        "username": "test",
+        "password": "Pass123."
+   }
+}

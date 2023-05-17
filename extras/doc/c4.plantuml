@@ -1,0 +1,60 @@
+' Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
+'
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+' https://c4model.com
+' https://www.infoq.com/articles/C4-architecture-model
+' https://github.com/plantuml-stdlib/C4-PlantUML
+
+@startuml C4
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' https://github.com/tupadr3/plantuml-icon-font-sprites/tree/master/devicons
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+' https://github.com/tupadr3/plantuml-icon-font-sprites/tree/master/devicons2
+!define DEVICONS2 https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons2
+' https://github.com/tupadr3/plantuml-icon-font-sprites/tree/master/font-awesome-5
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+!include FONTAWESOME/users.puml
+!include DEVICONS/angular.puml
+!include DEVICONS2/kubernetes.puml
+!include DEVICONS2/spring.puml
+!include DEVICONS/postgresql.puml
+' !include DEVICONS2/mysql.puml
+
+' https://github.com/plantuml-stdlib/C4-PlantUML#supported-diagram-types
+Person(mitarbeiter, "Mitarbeiter", "Kundenbetreuung", $sprite="users")
+Person(kunde, "Kunde", "Registrierte Kunden", $sprite="users")
+Container(web, "Webapp", "Angular", "SPA", $sprite="angular")
+
+System_Boundary(kubernetes, "Kubernetes Cluster") {
+    Container(gateway, "Gateway", "nginx", "Ingress Controller", $sprite="kubernetes")
+    Container(kv, "kunde", "Spring", "Kundenverwaltung", $sprite="spring")
+    Container(bv, "bestellung", "Spring", "Bestellverwaltung", $sprite="spring")
+}
+
+ContainerDb(postgres, "Datenbank", "PostgreSQL", "Kundendaten\nBestellungen", $sprite="postgresql")
+
+Rel(mitarbeiter, web, "Uses", "https")
+Rel(kunde, web, "Uses", "https")
+Rel(web, gateway, "Uses", "https")
+Rel(gateway, kv, "/kunden", "http")
+Rel(gateway, bv, "/bestellungen", "http")
+Rel_R(kv, postgres, "Reads/Writes")
+Rel_R(bv, postgres, "Reads/Writes")
+
+footer (c) Jürgen Zimmermann
+
+@enduml

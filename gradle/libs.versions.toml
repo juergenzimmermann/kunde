@@ -1,0 +1,183 @@
+# Copyright (C) 2021 - present Juergen Zimmermann, Hochschule Karlsruhe
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# https://docs.gradle.org/7.0/userguide/platforms.html#sub:central-declaration-of-dependencies
+# https://toml.io   TOML = Tom's Obvious Minimal Language
+
+# table = Schluessel/Wert-Paare
+[versions]
+javaVersion = "20"
+#javaVersion = "17"
+javaImageVersion = "20"
+#javaImageVersion = "17"
+
+springBoot = "3.1.0-RC2"
+
+annotations = "24.0.1"
+bouncycastle = "1.73"
+jansi = "2.4.0"
+# https://github.com/lalyos/jfiglet
+jfiglet = "0.0.9"
+springdocOpenapi = "2.1.0"
+
+# BOMs und spezifische Versionen ueberschreiben
+allureBom = "2.22.0"
+angusMail = "2.0.1"
+#assertj = "3.24.2"
+flyway = "9.18.0"
+#graphqlJava = "20.2"
+#graphqlJavaDataloader = "3.2.0"
+#hibernate = "6.2.2.Final"
+#hibernateValidator = "8.0.0.Final"
+jackson = "2.15.1"
+# fuer annotationProcessor fuer QueryDSL
+jakartaPersistence = "3.1.0"
+junit = "5.10.0-M1"
+#logback = "1.4.7"
+#log4j2 = "2.20.0"
+lombok = "1.18.26"
+micrometer = "1.11.0"
+#mockito = "5.3.1"
+mockitoInline = "5.2.0"
+mysql = "8.0.33"
+#netty = "4.1.92.Final"
+#oracle = "23.2.0.0"
+#oracle = "21.9.0.0"
+#postgres = "42.6.0"
+querydsl = "5.0.0"
+reactor = "2022.0.7"
+#slf4j = "2.0.7"
+# durch jackson-dataformat-yaml und swagger-core-jakarta
+#snakeyaml = "2.0"
+spring = "6.0.9"
+springData = "2023.0.0"
+springGraphQL = "1.2.0"
+springHateoas = "2.1.0"
+springSecurity = "6.1.0"
+#tomcat = "10.1.8"
+#zipkinReporter = "2.16.3"
+
+# Testen
+junitPlatformSuite = "1.10.0-M1"
+
+# QS, Reports, Dokumentation
+errorprone = "2.19.1"
+checkstyle = "10.11.0"
+spotbugs = "4.7.3"
+jacoco = "0.8.10"
+allure = "2.22.0"
+allureJunit = "2.22.0"
+aspectjweaver = "1.9.9.1"
+asciidoctorj = "2.5.8"
+asciidoctorjDiagram = "2.2.8"
+asciidoctorjPdf = "2.3.7"
+
+# Plugins
+#graalvmPlugin = "..."
+errorpronePlugin = "3.1.0"
+spotbugsPlugin = "5.0.14"
+#spotlessPlugin = "6.13.0"
+testLogger = "3.2.0"
+allurePlugin = "2.11.2"
+sweeney = "4.6.0"
+forbiddenapis = "3.4"
+owaspDependencycheck = "8.2.1"
+snyk = "0.4"
+asciidoctor = "4.0.0-alpha.1"
+nwillc = "3.0.5"
+benManes = "0.46.0"
+markelliot = "0.43.0"
+dependencyAnalysis = "1.20.0"
+licenseReport = "2.2"
+
+[libraries]
+angusMail = { module = "org.eclipse.angus:jakarta.mail", version.ref = "angusMail" }
+#assertjBom = { module = "org.assertj:assertj-bom", version.ref = "assertj" }
+flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flywayMySQL = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
+#graphqlJava = { module = "com.graphql-java:graphql-java", version.ref = "graphqlJava" }
+#graphqlJavaDataloader = { module = "com.graphql-java:java-dataloader", version.ref = "graphqlJavaDataloader" }
+#hibernate = { module = "org.hibernate.orm:hibernate-core", version.ref = "hibernate" }
+#hibernateValidator = { module = "org.hibernate.validator:hibernate-validator", version.ref = "hibernateValidator" }
+jacksonBom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
+#jakartaPersistence = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakartaPersistence" }
+junitBom = { module = "org.junit:junit-bom", version.ref = "junit" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok"}
+#logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+#log4jApi = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2" }
+#log4j2Slf4j = { module = "org.apache.logging.log4j:log4j-to-slf4j", version.ref = "log4j2" }
+micrometerBom = { module = "io.micrometer:micrometer-bom", version.ref = "micrometer" }
+#mockitoBom = { module = "org.mockito:mockito-bom", version.ref = "mockito" }
+mockitoInline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
+mysql = { module = "mysql:mysql-connector-java", version.ref = "mysql" }
+#nettyBom = { module = "io.netty:netty-bom", version.ref = "netty" }
+#oracle = { module = "com.oracle.database.jdbc:ojdbc11", version.ref = "oracle" }
+#postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+#querydslBom = { module = "com.querydsl:querydsl-bom", version.ref = "querydsl" }
+reactorBom = { module = "io.projectreactor:reactor-bom", version.ref = "reactor" }
+#slf4jApi = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+#slf4jJul = { module = "org.slf4j:jul-to-slf4j", version.ref = "slf4j" }
+#snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+springBom = { module = "org.springframework:spring-framework-bom", version.ref = "spring" }
+springBootBom = { module = "org.springframework.boot:spring-boot-starter-parent", version.ref = "springBoot" }
+springDataBom = { module = "org.springframework.data:spring-data-bom", version.ref = "springData" }
+springGraphQL = { module = "org.springframework.graphql:spring-graphql", version.ref = "springGraphQL" }
+springHateoas = { module = "org.springframework.hateoas:spring-hateoas", version.ref = "springHateoas" }
+springSecurityBom = { module = "org.springframework.security:spring-security-bom", version.ref = "springSecurity" }
+#springSecurityRsa = { module = "org.springframework.security:spring-security-rsa", version.ref = "springSecurityRsa" }
+#tomcatCore = { module = "org.apache.tomcat.embed:tomcat-embed-core", version.ref = "tomcat" }
+#tomcatEl = { module = "org.apache.tomcat.embed:tomcat-embed-el", version.ref = "tomcat" }
+#zipkinReporterBom = { module = "io.zipkin.reporter2:zipkin-repor1ter-bom", version.ref = "zipkinReporter" }
+
+allureBom = { module = "io.qameta.allure:allure-bom", version.ref = "allureBom" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+bouncycastle = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+springdocOpenapiBom = { module = "org.springdoc:springdoc-openapi", version.ref = "springdocOpenapi" }
+
+jfiglet = { module = "com.github.lalyos:jfiglet", version.ref = "jfiglet" }
+jansi = { module = "org.fusesource.jansi:jansi", version.ref = "jansi" }
+#devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "springBoot" }
+
+junitPlatformSuiteApi = { module = "org.junit.platform:junit-platform-suite-api", version.ref = "junitPlatformSuite" }
+junitPlatformSuiteEngine = { module = "org.junit.platform:junit-platform-suite-engine", version.ref = "junitPlatformSuite" }
+
+spotbugsAnnotations = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
+errorprone = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+
+#[bundles]
+#tomcat = ["tomcatCore", "tomcatEl"]
+#graphqlJavaBundle = ["graphqlJava", "graphqlJavaDataloader"]
+#slf4jBundle = ["slf4jApi", "slf4jJul"]
+#log4j = ["log4jApi", "log4j2Slf4j"]
+
+[plugins]
+springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }
+#graalvmPlugin = { id = "org.graalvm.buildtools.native", version.ref = "graalvmPlugin" }
+errorpronePlugin = { id = "net.ltgt.errorprone", version.ref = "errorpronePlugin" }
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugsPlugin" }
+#spotless = { id = "com.diffplug.spotless", version.ref = "spotlessPlugin" }
+testLogger = { id = "com.adarshr.test-logger", version.ref = "testLogger" }
+allure = { id = "io.qameta.allure", version.ref = "allurePlugin" }
+sweeney = { id = "com.fizzpod.sweeney", version.ref = "sweeney" }
+forbiddenapis = { id = "de.thetaphi.forbiddenapis", version.ref = "forbiddenapis" }
+owaspDependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owaspDependencycheck" }
+snyk = { id = "io.snyk.gradle.plugin.snykplugin", version.ref = "snyk" }
+asciidoctor = { id = "org.asciidoctor.jvm.convert", version.ref = "asciidoctor" }
+asciidoctorPdf = { id = "org.asciidoctor.jvm.pdf", version.ref = "asciidoctor" }
+nwillc = { id = "com.github.nwillc.vplugin", version.ref = "nwillc" }
+benManes = { id = "com.github.ben-manes.versions", version.ref = "benManes" }
+markelliot = { id = "com.markelliot.versions", version.ref = "markelliot" }
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
+licenseReport = { id = "com.github.jk1.dependency-license-report", version.ref = "licenseReport" }

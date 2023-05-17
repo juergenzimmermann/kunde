@@ -1,0 +1,107 @@
+# syntax=docker/dockerfile:1.5.2
+
+# Copyright (C) 2023 - present Juergen Zimmermann, Hochschule Karlsruhe
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Aufruf:   docker buildx build --tag juergenzimmermann/kunde:2023.1.1-ubi9 -f Dockerfile.ubi .
+#           Get-Content Dockerfile | docker run --rm --interactive hadolint/hadolint:2.12.1-beta-debian
+#           docker compose up
+#           docker compose exec kunde bash
+
+# https://docs.docker.com/engine/reference/builder/#syntax
+# https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/syntax.md
+# https://hub.docker.com/r/docker/dockerfile
+# https://containers.gitbook.io/build-containers-the-hard-way
+# https://docs.docker.com/develop/develop-images/multistage-build
+
+# ---------------------------------------------------------------------------------------
+# S t a g e :   b u i l d e r
+#
+#   UBI = Red Hat Universal Base Image
+#   https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html-single/building_running_and_managing_containers/index#con_understanding-the-ubi-standard-images_assembly_types-of-container-images
+#   https://developers.redhat.com/articles/ubi-faq
+#   https://access.redhat.com/articles/4238681
+#   Bei https://catalog.redhat.com gibt es auch Images fuer UBI, falls man ein Abonnement hat
+#   JAR bauen mit eigenem Code und Dependencies, z.B. Spring, Jackson
+# ---------------------------------------------------------------------------------------
+ARG JAVA_VERSION=20.0.1_9
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-ubi9-minimal AS builder
+
+# "working directory" fuer die Docker-Kommandos RUN, ENTRYPOINT, CMD, COPY und ADD
+WORKDIR /source
+
+COPY build.gradle.kts gradle.properties gradlew settings.gradle.kts ./
+COPY gradle ./gradle
+COPY src ./src
+
+# Package Manager
+#   rpm = Red Hat Package Manager
+#   YUM = Yellow-Dog Updater Modified
+#   DNF = Dandified YUM
+#     "default software package management tool" in Fedora und der Nachfolger von YUM
+#     https://dnf.readthedocs.io/en/latest/command_ref.html
+#     https://docs.fedoraproject.org/en-US/quick-docs/dnf
+#     https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-37&arch=x86_64
+#   microdnf nutzt C statt Python und benötigt deshalb keine Python-Module
+#     https://github.com/rpm-software-management/microdnf
+# ggf.:
+#   dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+#   dnf -y install codeready-builder-release
+#   /usr/bin/crb enable
+#   dnf -y install ...
+
+# JAR-Datei mit den Schichten ("layers") erstellen und aufbereiten bzw. entpacken
+# Default-Kommando
+# "here document" wie in einem Shellscipt
+RUN <<EOF
+set -ex
+# "findutils" enthaelt "xargs" fuer das Shellskript "gradlew"
+microdnf -y install findutils
+./gradlew --no-configuration-cache --no-daemon --no-watch-fs bootJar
+java -Djarmode=layertools -jar ./build/libs/kunde-2023.1.0.jar extract
+EOF
+
+# ---------------------------------------------------------------------------------------
+# S t a g e   2
+#
+#   JRE statt JDK
+#   Dependencies, z.B. Spring, Jackson
+#   Loader fuer Spring Boot
+#   Eigener uebersetzter Code
+# ---------------------------------------------------------------------------------------
+FROM eclipse-temurin:${JAVA_VERSION}-jre-ubi9-minimal
+
+WORKDIR /application
+
+RUN set -ex && \
+    microdnf update -y && \
+    microdnf clean all && \
+    rm -rf /var/cache/yum/*
+
+RUN <<EOF
+groupadd --gid 1000 kunde
+useradd --uid 1000 --gid kunde --no-create-home kunde
+EOF
+
+COPY --from=builder --chown=kunde:kunde /source/dependencies/ ./
+COPY --from=builder --chown=kunde:kunde /source/spring-boot-loader/ ./
+#COPY --from=build --chown=kunde:kunde /source/snapshot-dependencies/ ./
+COPY --from=builder --chown=kunde:kunde /source/application/ ./
+
+USER kunde
+EXPOSE 8080
+
+# Basis-Kommando, das immer ausgefuehrt wird
+ENTRYPOINT ["java", "--enable-preview", "org.springframework.boot.loader.JarLauncher"]

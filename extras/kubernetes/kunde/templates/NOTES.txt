@@ -1,0 +1,13 @@
+
+--------------------------------------------------------------------------------
+Das Release {{ quote .Release.Name }} wurde mit dem Chart {{ quote .Chart.Name }} installiert.
+
+Nützliche Kommandos:
+
+  helm status {{ .Release.Name }} --namespace {{ .Values.namespace }}
+  helm get manifest {{ .Release.Name }} --namespace {{ .Values.namespace }}
+
+  kubectl describe configmap {{ include "kunde.fullname" . }} --namespace {{ .Values.namespace }}
+  kubectl get configmap {{ include "kunde.fullname" . }} --output jsonpath='{.data}' --namespace {{ .Values.namespace }}
+
+========================================================================================================================

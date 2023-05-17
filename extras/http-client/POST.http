@@ -1,0 +1,122 @@
+// https://www.jetbrains.com/help/idea/http-client-in-product-code-editor.html
+// https://www.jetbrains.com/help/idea/http-response-handling-examples.html
+
+## Einen neuen Kunden anlegen: 201 (Created)
+POST {{restUrl}}
+Content-Type: application/json
+
+< data/kunde-neu.json
+
+> {%
+    client.test('Einen neuen Kunden anlegen: Created (201)', () => {
+        const status = response.status;
+        client.assert(status === 201, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen neuen Kunden anlegen: location', () => {
+        const headers = response.headers;
+        client.assert(headers !== null && headers !== undefined && typeof headers === 'object', `response: ${JSON.stringify(response)}`);
+        const location = headers.toJSON().Location;
+        client.assert(location !== null && location !== undefined, `headers: ${JSON.stringify(headers)}`);
+        client.assert(location.match(/[A-Fa-f\d]{8}-([A-Fa-f\d]{4}-){3}[A-Fa-f\d]{12}$/).length > 0, `location: ${location}`);
+    });
+
+    client.test('Einen neuen Kunden anlegen: leerer body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Einen neuen Kunden mit bereits existierender Emailadresse anlegen: 422 (Unprocessable Entity)
+POST {{restUrl}}
+Content-Type: application/json
+
+< data/kunde-neu-email-exists.json
+
+> {%
+    client.test('Einen neuen Kunden mit bereits existierender Emailadresse anlegen: Unprocessable Entity (422)', () => {
+        const status = response.status;
+        client.assert(status === 422, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen neuen Kunden mit bereits existierender Emailadresse anlegen: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/problem+json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen neuen Kunden mit bereits existierender Emailadresse anlegen: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(typeof detail === 'string' && detail === 'Die Emailadresse admin@acme.com existiert bereits', `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Einen neuen Kunden mit ungueltigen Daten anlegen: 422 (Unprocessable Entity)
+POST {{restUrl}}
+Content-Type: application/json
+
+< data/kunde-neu-invalid.json
+
+> {%
+    client.test('Einen neuen Kunden mit ungueltigen Daten anlegen: Unprocessable Entity (422)', () => {
+        const status = response.status;
+        client.assert(status === 422, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen neuen Kunden mit ungueltigen Daten anlegen: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === "application/problem+json", `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen neuen Kunden mit ungueltigen Daten anlegen: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(body !== null && body !== undefined && typeof body === 'object', `response: ${JSON.stringify(response)}`);
+        // noinspection JSObjectNullOrUndefined
+        const detail = body.detail;
+        client.assert(detail !== null && detail !== undefined && typeof detail === 'string' && detail.length > 2, `body: ${JSON.stringify(body)}`);
+        // noinspection JSObjectNullOrUndefined
+        const detailArr = detail.slice(1, -1).split(', ');
+        client.assert(detailArr.length > 0, `detail: ${JSON.stringify(detail)}`);
+    });
+%}
+
+### Einen neuen Kunden mit ungueltigem Passwort anlegen: 422 (Unprocessable Entity)
+POST {{restUrl}}
+Content-Type: application/json
+
+< data/kunde-neu-invalid-password.json
+
+> {%
+    client.test('Einen neuen Kunden mit ungueltigem Passwort anlegen: Unprocessable Entity (422)', () => {
+        const status = response.status;
+        client.assert(status === 422, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Einen neuen Kunden mit ungueltigem Passwort anlegen: application/problem+json', () => {
+        const mimeType = response.contentType.mimeType;
+        client.assert(mimeType === 'application/problem+json', `Falscher MIME-Typ: ${mimeType}`);
+    });
+
+    client.test('Einen neuen Kunden mit ungueltigem Passwort anlegen: body mit ProblemDetail', () => {
+        const body = response.body;
+        client.assert(typeof body === 'object', `body: ${JSON.stringify(body)}`);
+        const detail = body.detail;
+        client.assert(typeof detail === 'string' && detail.startsWith('Ungueltiges Passwort'), `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Einen neuen Kunden mit fehlerhaften Datentypen anlegen: 400 (Bad Request)
+POST {{restUrl}}
+Content-Type: application/json
+
+< data/kunde-neu-invalid-types.json
+
+> {%
+    client.test('Einen neuen Kunden mit fehlerhaften Datentypen anlegen: Bad Request (400)', () => {
+        const status = response.status;
+        client.assert(status === 400, `Falscher Statuscode: ${status}`);
+    });
+%}
+
+###

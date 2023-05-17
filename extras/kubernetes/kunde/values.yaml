@@ -1,0 +1,141 @@
+# Copyright (C) 2022 - present Juergen Zimmermann, Hochschule Karlsruhe
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Default values for kunde.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# https://helm.sh/docs/chart_best_practices/values
+
+# -- Namespace in NOTES.txt
+namespace: acme
+
+# -- Defaultwert ist im Chart bei `name` und kann überschrieben werden.
+nameOverride: ""
+
+# -- _Fully Qualified Name (FQN)_ ist defaultmäßig im Chart bei `name` und kann überschrieben werden.
+fullnameOverride: ""
+
+# -- Port des Kubernetes-Service
+servicePort: 8080
+
+# -- Profile für Spring als Umgebungsvariable
+profile: default
+
+# -- Flag, ob TLS genutzt wird
+ssl: "true"
+
+# -- Flag, ob HTTP2 genutzt wird
+http2: "true"
+
+logLevel:
+  # -- Loglevel für kunde als Umgebungsvariable
+  application: info
+  # -- Loglevel für Request und Response
+  requestResponse: info
+  # -- Loglevel für Hibernate als Umgebungsvariable
+  hibernate: info
+  # -- Loglevel für Flyway als Umgebungsvariable
+  flyway: info
+
+datasource:
+  # URL für den DB-Zugriff
+  url: jdbc:postgresql://postgres/kunde
+  # Benutzername für die DB
+  username: kunde
+  # Passwort für die DB (Base64)
+  password: Change Me!
+
+# -- Rechnername des Mailservers als Umgebungsvariable
+mailhost: smtp
+
+# -- Version als Suffix in deployment.yaml für Volumes
+versionSuffix: -v2
+
+# -- Anzahl Replica im Pod von Kubernetes
+replicaCount: 2
+
+image:
+  # -- Repository als Präfix beim Image-Namen
+  repository: juergenzimmermann
+  # -- Name des Image
+  name: kunde
+  # -- Pull-Policy für das Image
+  pullPolicy: Always
+  # -- Defaultwert ist im Chart bei `appVersion` und kann überschrieben werden.
+  tag: ""
+
+deployment:
+  # -- Name der Secret-Ressource beim DB-System
+  secretNameDB: postgres
+
+  # -- Port innerhalb des Containers
+  containerPort: 8080
+
+# -- ID des Linux-Users
+uid: 1000
+# -- ID der Linux-Gruppe
+gid: 1000
+
+resourcesRequests:
+  # -- (Mindest-) Anforderung an CPU-Ressourcen in _millicores_, z.B. `500m` oder `1`
+  cpu: 500m
+  # -- (Mindest-) Anforderung an Memory-Resourcen als _mebibyte_ Wert
+  memory: 512Mi
+  # -- (Mindest-) Anforderung an flüchtigen Speicher für z.B. Caching und Logs
+  ephemeral: 64Mi
+
+resourcesLimits:
+  # -- Maximalanforderung an CPU-Ressourcen in _millicores_, z.B. `500m` oder `1`
+  cpu: 600m
+  # -- Maximalanforderung an Memory-Resourcen als _mebibyte_ Wert
+  memory: 512Mi
+  # -- Maximalanforderung an flüchtigen Speicher für z.B. Caching und Logs
+  ephemeral: 64Mi
+
+livenessProbe:
+  # -- Anzahl Sekunden, bis die Probe für Liveness abgesetzt wird
+  initialDelay: 0
+  # -- Timeout für Liveness-Probe in Sekunden
+  timeout: 1
+  # -- periodischer Abstand zwischen den Liveness-Proben in Sekunden
+  period: 10
+  # -- Max. Anzahl an Fehlversuchen bei den Liveness-Proben
+  failureThreshold: 3
+
+readinessProbe:
+  # -- Anzahl Sekunden, bis die Probe für Readiness abgesetzt wird
+  initialDelay: 0
+  # -- Timeout für Readiness-Probe in Sekunden
+  timeout: 1
+  # -- periodischer Abstand zwischen den Readiness-Proben in Sekunden
+  period: 10
+  # -- Max. Anzahl an Fehlversuchen bei den Readiness-Proben
+  failureThreshold: 3
+
+autoscaling:
+  # -- Mininmale Anzahl an Replicas
+  minReplicas: 1
+  # -- Maximale Anzahl an Replicas
+  maxReplicas: 100
+  # -- Maximale CPU-Auslastung
+  cpuUtilizationPercentage: 80
+  # -- Maximale RAM-Auslastung
+  memoryUtilizationPercentage: 80
+
+h2:
+  console:
+    # -- Aktivierung des DB-Browsers für H2
+    enabled: "false"

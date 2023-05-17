@@ -1,0 +1,53 @@
+### Löschen mit vorhandener Kunde-ID
+DELETE {{restUrl}}/00000000-0000-0000-0000-000000000050
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('Löschen mit vorhandener Kunde-ID: No Content (204)', () => {
+        const status = response.status;
+        client.assert(status === 204, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Löschen mit vorhandener Kunde-ID: leerer body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Löschen mit nicht-vorhandener Kunde-ID: 204 (No Content)
+DELETE {{restUrl}}/FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF
+Authorization: Basic {{userAdmin}} {{password}}
+
+> {%
+    client.test('Löschen mit nicht-vorhandener Kunde-ID: No Content (204)', () => {
+        const status = response.status;
+        client.assert(status === 204, `Falscher Statuscode: ${status}`);
+    });
+
+    client.test('Löschen mit nicht-vorhandener Kunde-ID: leerer body', () => {
+        const body = response.body;
+        client.assert(body === null, `body: ${JSON.stringify(body)}`);
+    });
+%}
+
+### Löschen mit falschem Passwort: 401 (Unauthorized)
+DELETE {{restUrl}}/00000000-0000-0000-0000-000000000050
+Authorization: Basic {{userAdmin}} {{passwordFalsch}}
+
+> {%
+    client.test('Löschen mit falschem Passwort: Unauthorized (401)', () => {
+        const status = response.status;
+        client.assert(status === 401, `Falscher Statuscode: ${status}`);
+    });
+%}
+
+### Löschen mit fehlenden Rechten: 401 (Unauthorized)
+DELETE {{restUrl}}/00000000-0000-0000-0000-000000000050
+Authorization: Basic {{userKunde}} {{passwordFalsch}}
+
+> {%
+    client.test('Löschen mit fehlenden Rechten: Unauthorized (401)', () => {
+        const status = response.status;
+        client.assert(status === 401, `Falscher Statuscode: ${status}`);
+    });
+%}
