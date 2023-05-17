@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kunde
+  namespace: juergen-zimmermann-dev
+  labels:
+    app: kunde
+spec:
+  selector:
+    app: kunde
+  ports:
+    - protocol: TCP
+      name: "8080-tcp"
+      port: 8080
+      targetPort: 8080

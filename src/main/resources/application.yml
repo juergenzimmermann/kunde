@@ -21,19 +21,22 @@ server:
     mime-types: application/hal+json
     min-response-size: 2KB
   error.whitelabel.enabled: false
-  http2.enabled: true
+  #http2.enabled: true
+  http2.enabled: false
   # https://docs.spring.io/spring-boot/docs/3.1.0-RC1/reference/htmlsingle/#howto.webserver.configure-ssl
-  ssl.bundle: microservice
+  #ssl.bundle: microservice
+  ssl.enabled: false
   shutdown: graceful
 
 spring:
   application.name: kunde
   aop.proxy-target-class: false
   datasource:
-    url: jdbc:postgresql://localhost/kunde
+    #url: jdbc:postgresql://localhost/kunde
+    url: jdbc:postgresql://postgresql:5432/kunde?user=postgres&password=pass123.
     #url: jdbc:mysql://localhost/kunde
-    username: kunde
-    password: Change Me!
+    #username: kunde
+    #password: Change Me!
   flyway:
     locations: classpath:db/migration/{vendor}
     create-schemas: false
@@ -105,17 +108,17 @@ spring:
   security.user.password: p
   spel.ignore: true
   # https://docs.spring.io/spring-boot/docs/3.1.0-RC1/reference/htmlsingle/#features.ssl.jks
-  ssl.bundle.jks.microservice:
-    key:
-      alias: microservice
-    keystore:
-      location: classpath:keystore.p12
-      password: zimmermann
-      type: PKCS12
-    truststore:
-      location: classpath:truststore.p12
-      password: zimmermann
-      type: PKCS12
+  #ssl.bundle.jks.microservice:
+  #  key:
+  #    alias: microservice
+  #  keystore:
+  #    location: classpath:keystore.p12
+  #    password: zimmermann
+  #    type: PKCS12
+  #  truststore:
+  #    location: classpath:truststore.p12
+  #    password: zimmermann
+  #    type: PKCS12
 
 info.app:
   author: Juergen Zimmermann

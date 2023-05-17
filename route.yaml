@@ -1,0 +1,14 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: kunde
+  namespace: juergen-zimmermann-dev
+  labels: {}
+spec:
+  to:
+    kind: Service
+    name: kunde
+  tls: null
+  path: /
+  port:
+    targetPort: 8080-tcp

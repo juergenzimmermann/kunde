@@ -1,0 +1,31 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: juergen-zimmermann-dev
+  name: kunde
+  annotations: {}
+spec:
+  selector:
+    matchLabels:
+      app: kunde
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: kunde
+    spec:
+      containers:
+        - name: container
+          image: docker.io/juergenzimmermann/kunde
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env: []
+      #imagePullSecrets:
+      #  - name: ...
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  paused: false
